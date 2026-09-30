@@ -72,7 +72,7 @@ for stem, title, instruction in real_tasks:
         stage = ['Initial Scene', 'Execution', 'Final Scene'][i] if len(photos) == 3 else f'Frame {i + 1}'
         url = f'assets/figures/real_robot/{photo.name}'
         images.append(f'<figure><a href="{url}"><img loading="lazy" src="{url}" alt="{title}: {stage}" width="1920" height="1080"></a><figcaption>{stage}</figcaption></figure>')
-    real_gallery.append(f'<article class="real-task"><h3>{title}</h3><p>{instruction}</p><div class="real-photos">{"".join(images)}</div></article>')
+    real_gallery.append(f'<details class="real-task"{" open" if not real_gallery else ""}><summary><span class="task-index">{len(real_gallery) + 1:02}</span><span><h3>{title}</h3><p>{instruction}</p></span><span class="expand-icon" aria-hidden="true">+</span></summary><div class="real-photos">{"".join(images)}</div></details>')
 real_gallery = '<div class="real-gallery">' + ''.join(real_gallery) + '</div>'
 
 
@@ -139,7 +139,7 @@ page = f'''<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="RoboGenesis: a self-evolving agentic harness for continual robot learning through hypothesis-guided code and skill co-evolution.">
-<meta name="theme-color" content="#243d83">
+<meta name="theme-color" content="#26233e">
 <title>RoboGenesis | Continual Robot Learning</title>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -147,23 +147,28 @@ page = f'''<!doctype html>
 <nav aria-label="Main navigation"><a class="brand" href="#top">RoboGenesis</a><div><a href="#abstract">Abstract</a><a href="#method">Method</a><a href="#results">Results</a><a href="#real-world">Real-world</a></div></nav>
 <main id="top">
 <header class="hero">
+<div class="hero-copy">
 <p class="eyebrow">CONTINUAL ROBOT LEARNING</p>
-<h1><span>RoboGenesis</span><br>Continual Robot Learning<br>Through Hypothesis-Guided Co-Evolution</h1>
+<h1><span class="wordmark">Robo<span class="wordmark-accent">Genesis</span></span><span class="paper-title">Continual Robot Learning<br>Through Hypothesis-Guided Co-Evolution</span></h1>
 <div class="authors" aria-label="Authors"><span>Python Song<sup>1</sup></span>, <span>Zhixuan Liang<sup>2</sup></span>, <span>Kelsey Fu<sup>2</sup></span>, <span>Mengdi Wang<sup>2</sup></span>, <span>Junfeng Yang<sup>1</sup></span>, <span>Shilong Liu<sup>2</sup></span></div>
 <div class="affiliations"><span><sup>1</sup> Columbia University</span><span><sup>2</sup> Princeton University</span></div>
+<div class="university-logos"><a href="https://www.columbia.edu/" aria-label="Columbia University"><img src="assets/logos/columbia.svg" alt="Columbia University" width="230" height="64"></a><a href="https://www.princeton.edu/" aria-label="Princeton University"><img src="assets/logos/princeton.svg" alt="Princeton University" width="230" height="64"></a></div>
 <p class="subtitle">Building the recursive self-improvement layer for robotics: an agentic harness that evolves its own code, skills, and memory through physical experience.</p>
 <div class="links"><a class="button primary" href="assets/paper/embodied-evo.pdf">Read the paper ↗</a><a class="button" href="https://github.com/Geeksongs/agentic_robotics">Website source ↗</a></div>
-<div class="metrics"><div><strong>77.0<span>%</span></strong><p>RoboCasa365 overall</p></div><div><strong>86.8<span>%</span></strong><p>LIBERO-Pro overall</p></div><div><strong>71.3<span>%</span></strong><p>Zero-shot real-robot transfer</p></div></div>
+</div>
+<div class="hero-media" aria-label="Real robot experiments"><figure class="hero-photo primary-photo"><img src="assets/figures/real_robot/glasses_03.jpg" alt="SO-101 robot lifting glasses at the bridge" width="1920" height="1080"><figcaption>Glasses Bridge Grasp</figcaption></figure><figure class="hero-photo secondary-photo"><img src="assets/figures/real_robot/cake_03.jpg" alt="SO-101 robot stacking cakes on a can of luncheon meat" width="1920" height="1080"><figcaption>Cake Stacking</figcaption></figure><span class="orbit orbit-one" aria-hidden="true"></span><span class="orbit orbit-two" aria-hidden="true"></span></div>
 </header>
+<div class="metrics"><div><strong>77.0<span>%</span></strong><p>RoboCasa365 overall</p></div><div><strong>86.8<span>%</span></strong><p>LIBERO-Pro overall</p></div><div><strong>71.3<span>%</span></strong><p>Zero-shot real-robot transfer</p></div></div>
+
 <section id="overview" class="overview">{figure('overview','RoboGenesis architecture showing the Fast System, Hypothesis Graph, and Slow System memory','The Fast System uses a Hypothesis Graph to choose each physical experiment. Each result guides a joint code-skill update. The Slow System retains memories that improve later adaptation.')}</section>
-<section id="abstract"><p class="eyebrow">THE PAPER</p><h2>Abstract</h2><p class="abstract">{abstract}</p></section>
+<section id="abstract" class="abstract-section"><div class="section-label"><p class="eyebrow">THE PAPER</p><h2>Abstract</h2></div><p class="abstract">{abstract}</p></section>
 <section id="method"><p class="eyebrow">FROM INTERACTION TO IMPROVEMENT</p><h2>Hypothesis-Guided Co-Evolution</h2>
 <div class="cards"><article><span class="number">01</span><h3>Choose Informative Experiments</h3><p>The Fast System maintains competing code and skill hypotheses. Value-of-Information Experiment Selection prioritizes physical trials by expected uncertainty reduction relative to their cost.</p></article><article><span class="number">02</span><h3>Evolve Code and Skills Together</h3><p>Matched trials compare joint code-skill execution with each component from the same initial states. The Hypothesis Graph retains refinement history and relations supported by positive joint gain.</p></article><article><span class="number">03</span><h3>Learn What to Remember</h3><p>The Slow System builds Hierarchical Memory from execution records, hypotheses, and reusable cognition. Reward-Grounded Memory Learning selects memory actions based on later Fast-System improvement.</p></article></div>
 {figure('hypothesis-graph','Hypothesis Graph before and after physical trials','Before experiments, dashed links mark code-skill relations awaiting evidence. After experiments, solid works-with edges identify relations supported by measured positive joint gain.')}
 </section>
 <section id="results"><p class="eyebrow">GENERALIZATION IN SIMULATION</p><h2>New Compositions. Changed Scenes.</h2><p>With the robot foundation model frozen, RoboGenesis reaches 71.3% success on RoboCasa365 Composite-Unseen, compared with 40.1% for Harness VLA. LIBERO-Pro evaluates instruction-redirection (T) and position-swap (S) perturbations.</p><div class="task-grid">{task_grid}</div>
-{benchmark_chart('tab:main-results','Composite-Unseen','RoboCasa365','robocasa-unseen')}
-{benchmark_chart('tab:libero-results','Overall','LIBERO-Pro','libero-overall')}
+<div class="benchmark-tabs" role="tablist" aria-label="Simulation benchmarks"><button id="tab-robocasa" type="button" role="tab" aria-selected="true" aria-controls="panel-robocasa">RoboCasa365 <span>Composite-Unseen</span></button><button id="tab-libero" type="button" role="tab" aria-selected="false" aria-controls="panel-libero" tabindex="-1">LIBERO-Pro <span>Overall</span></button></div>
+<div class="benchmark-panels"><div id="panel-robocasa" role="tabpanel" aria-labelledby="tab-robocasa">{benchmark_chart('tab:main-results','Composite-Unseen','RoboCasa365','robocasa-unseen')}</div><div id="panel-libero" role="tabpanel" aria-labelledby="tab-libero">{benchmark_chart('tab:libero-results','Overall','LIBERO-Pro','libero-overall')}</div></div>
 <p class="note">Simulation evaluation: 10 random seeds and 10 trials per seed for each task. Evolution and evaluation use mutually disjoint seeds.</p>
 </section>
 <section id="real-world"><p class="eyebrow">ZERO-SHOT SIM-TO-REAL TRANSFER</p><h2>From Simulated Experience to a Physical Robot</h2><p>The simulation-evolved agentic harness transfers to a physical SO-101 arm with a frozen SmolVLA backbone. Overall success rises from 46.0% to 71.3% across five tasks spanning multi-step manipulation, semantic and arithmetic reasoning, and precision grasping.</p>
@@ -173,6 +178,7 @@ page = f'''<!doctype html>
 </section>
 </main>
 <footer><p>RoboGenesis · Continual Robot Learning through Hypothesis-Guided Co-Evolution</p><p><a href="assets/paper/embodied-evo.pdf">Paper</a> · <a href="https://github.com/Geeksongs/agentic_robotics">Website source</a> · <a href="#top">Back to top ↑</a></p><p class="credit">Website adapted from the <a href="https://github.com/Geeksongs/realtime-robosuite/tree/website">Realtime Robosuite website branch</a>. Content and figures from the EmbodiedEvo manuscript.</p></footer>
+<script src="site.js" defer></script>
 </body></html>
 '''
 (root / 'index.html').write_text(page)

@@ -13,7 +13,7 @@ The project is branded RoboGenesis. The current manuscript and its abstract reta
 python3 -m http.server 8000
 ```
 
-Open http://localhost:8000. The website is static HTML/CSS with no external runtime dependencies.
+Open http://localhost:8000. The website is static HTML/CSS/JavaScript with no external runtime dependencies. The visual design uses a split hero, local university logos, a dark benchmark section with keyboard-accessible tabs, and expandable real-robot photo sequences. Logo source URLs are recorded in `assets/logos/sources.json`.
 
 ## Regenerate from the manuscript
 
@@ -26,4 +26,4 @@ The source directory should contain `iclr2027_conference.tex`, its compiled PDF,
 
 ## Deploy
 
-Push to `website`. The GitHub Actions workflow publishes only `index.html`, `style.css`, and `assets/` to GitHub Pages.
+Push to `website`. The GitHub Actions workflow publishes only `index.html`, `style.css`, `site.js`, and `assets/` to GitHub Pages.
