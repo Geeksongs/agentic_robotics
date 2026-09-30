@@ -1,5 +1,5 @@
 """Build the static project page from the provided paper and figures.
-Usage: python3 scripts/build_site.py /path/to/paper-directory
+Usage: python3 scripts/build_site.py /path/to/paper-directory [real-robot-photos.zip]
 Requires: PyMuPDF (pip install pymupdf).
 """
 from pathlib import Path
@@ -7,6 +7,8 @@ import html
 import re
 import shutil
 import sys
+import json
+from zipfile import ZipFile
 import pymupdf as fitz
 
 root = Path(__file__).resolve().parents[1]
@@ -37,7 +39,23 @@ shutil.copy2(source / 'iclr2027_conference.pdf', root / 'assets/paper/embodied-e
 photo_dir = figures / 'real_robot'
 photo_dir.mkdir(exist_ok=True)
 for photo in (source / 'Figure' / 'real_robot').glob('*.jpg'):
-    shutil.copy2(photo, photo_dir / photo.name)
+    if not (photo_dir / photo.name).exists():
+        shutil.copy2(photo, photo_dir / photo.name)
+if len(sys.argv) > 2:
+    folders = {'奥利奥': 'oreo', '德州': 'chip', '午餐肉': 'cake', 'glasses': 'glasses', '毛巾': 'towel'}
+    provenance = {}
+    with ZipFile(sys.argv[2]) as archive:
+        for folder, stem in folders.items():
+            names = sorted(name for name in archive.namelist()
+                           if f'/{folder}/' in name and name.lower().endswith('.jpg'))
+            if len(names) != 3:
+                raise ValueError(f'Expected three photographs for {folder}, found {len(names)}')
+            for i, name in enumerate(names, 1):
+                filename = f'{stem}_{i:02}.jpg'
+                (photo_dir / filename).write_bytes(archive.read(name))
+                provenance[filename] = name
+    (photo_dir / 'sources.json').write_text(json.dumps(provenance, ensure_ascii=False, indent=2) + '\n')
+
 real_tasks = [
     ('oreo', 'Oreo to Red Bowl', 'Pick up the Oreo and place it in the red bowl.'),
     ('chip', 'Poker Chip Selection', 'Select the chip whose value × 5 = 100.'),
@@ -51,7 +69,7 @@ for stem, title, instruction in real_tasks:
         continue
     images = []
     for i, photo in enumerate(photos):
-        stage = ['Initial scene', 'Robot approach', 'Target state'][i] if len(photos) == 3 else f'Frame {i + 1}'
+        stage = ['Initial scene', 'Execution', 'Final scene'][i] if len(photos) == 3 else f'Frame {i + 1}'
         url = f'assets/figures/real_robot/{photo.name}'
         images.append(f'<figure><a href="{url}"><img loading="lazy" src="{url}" alt="{title}: {stage}" width="1920" height="1080"></a><figcaption>{stage}</figcaption></figure>')
     real_gallery.append(f'<article class="real-task"><h3>{title}</h3><p>{instruction}</p><div class="real-photos">{"".join(images)}</div></article>')
