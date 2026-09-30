@@ -16,7 +16,6 @@ source = Path(sys.argv[1]).resolve()
 tex = (source / 'iclr2027_conference.tex').read_text()
 figures = root / 'assets/figures'
 figures.mkdir(parents=True, exist_ok=True)
-(root / 'assets/paper').mkdir(parents=True, exist_ok=True)
 
 def plain(value):
     value = re.sub(r'\\(?:textbf|text|emph|mathrm)\{([^{}]*)\}', r'\1', value)
@@ -33,7 +32,6 @@ for name, dest in [('Main_figure.pdf','overview'), ('Figure 3.pdf','hypothesis-g
         doc[0].get_pixmap(matrix=fitz.Matrix(2,2), alpha=False).save(figures / f'{dest}.png')
 for image in (source / 'Figure').glob('*.png'):
     shutil.copy2(image, figures / image.name)
-shutil.copy2(source / 'iclr2027_conference.pdf', root / 'assets/paper/embodied-evo.pdf')
 
 # Preserve each original photograph as its own browser image.
 photo_dir = figures / 'real_robot'
@@ -119,7 +117,7 @@ def benchmark_chart(label, metric, title, identifier):
                   'source': {'file': 'iclr2027_conference.tex', 'table_label': label}, 'rows': data}
     (figures / f'{identifier}.json').write_text(json.dumps(chart_data, ensure_ascii=False, indent=2) + '\n')
     scope = 'Composite-Unseen' if metric == 'Composite-Unseen' else 'Overall'
-    return f'<figure class="benchmark-chart" id="{identifier}" aria-labelledby="{identifier}-title"><div class="chart-heading"><div><h3 id="{identifier}-title">{title}</h3><p>{scope} · Success Rate (%)</p></div><div class="chart-highlight"><strong>{ours:.1f}<span>%</span></strong><span class="chart-delta">+{ours - best_baseline:.1f} pp vs. best baseline</span></div></div><ol class="bar-chart">{"".join(bars)}</ol><div class="chart-axis" aria-hidden="true"><span>0</span><span>25</span><span>50</span><span>75</span><span>100%</span></div><figcaption><a href="assets/paper/embodied-evo.pdf">Manuscript results</a> · <a href="assets/figures/{identifier}.json">Chart data</a></figcaption></figure>'
+    return f'<figure class="benchmark-chart" id="{identifier}" aria-labelledby="{identifier}-title"><div class="chart-heading"><div><h3 id="{identifier}-title">{title}</h3><p>{scope} · Success Rate (%)</p></div><div class="chart-highlight"><strong>{ours:.1f}<span>%</span></strong><span class="chart-delta">+{ours - best_baseline:.1f} pp vs. best baseline</span></div></div><ol class="bar-chart">{"".join(bars)}</ol><div class="chart-axis" aria-hidden="true"><span>0</span><span>25</span><span>50</span><span>75</span><span>100%</span></div><figcaption>Manuscript results · <a href="assets/figures/{identifier}.json">Chart data</a></figcaption></figure>'
 
 
 def figure(name, alt, caption):
@@ -154,7 +152,6 @@ page = f'''<!doctype html>
 <div class="affiliations"><span><sup>1</sup> Columbia University</span><span><sup>2</sup> Princeton University</span></div>
 <div class="university-logos"><a href="https://www.columbia.edu/" aria-label="Columbia University"><img src="assets/logos/columbia.svg" alt="Columbia University" width="230" height="64"></a><a href="https://www.princeton.edu/" aria-label="Princeton University"><img src="assets/logos/princeton.svg" alt="Princeton University" width="230" height="64"></a></div>
 <p class="subtitle">Building the recursive self-improvement layer for robotics: an agentic harness that evolves its own code, skills, and memory through physical experience.</p>
-<div class="links"><a class="button primary" href="assets/paper/embodied-evo.pdf">Read the paper ↗</a><a class="button" href="https://github.com/Geeksongs/agentic_robotics">Website source ↗</a></div>
 </div>
 <div class="hero-media" aria-label="Real robot experiments"><figure class="hero-photo primary-photo"><img src="assets/figures/real_robot/glasses_03.jpg" alt="SO-101 robot lifting glasses at the bridge" width="1920" height="1080"><figcaption>Glasses Bridge Grasp</figcaption></figure><figure class="hero-photo secondary-photo"><img src="assets/figures/real_robot/cake_03.jpg" alt="SO-101 robot stacking cakes on a can of luncheon meat" width="1920" height="1080"><figcaption>Cake Stacking</figcaption></figure><span class="orbit orbit-one" aria-hidden="true"></span><span class="orbit orbit-two" aria-hidden="true"></span></div>
 </header>
@@ -177,7 +174,7 @@ page = f'''<!doctype html>
 <p class="note">SmolVLA is fine-tuned before evaluation using 50 teleoperated demonstrations per task, then remains frozen during all trials. The agentic harness transfers zero-shot from simulation. Success on glasses bridge grasp falls from 60.0% to 56.7%.</p>
 </section>
 </main>
-<footer><p>EmbodiedRSI · Continual Robot Learning through Hypothesis-Guided Co-Evolution</p><p><a href="assets/paper/embodied-evo.pdf">Paper</a> · <a href="https://github.com/Geeksongs/agentic_robotics">Website source</a> · <a href="#top">Back to top ↑</a></p><p class="credit">Website adapted from the <a href="https://github.com/Geeksongs/realtime-robosuite/tree/website">Realtime Robosuite website branch</a>. Content and figures from the EmbodiedEvo manuscript.</p></footer>
+<footer><p>EmbodiedRSI · Continual Robot Learning through Hypothesis-Guided Co-Evolution</p><p><a href="#top">Back to top ↑</a></p><p class="credit">Website adapted from the <a href="https://github.com/Geeksongs/realtime-robosuite/tree/website">Realtime Robosuite website branch</a>. Content and figures from the EmbodiedEvo manuscript.</p></footer>
 <script src="site.js" defer></script>
 </body></html>
 '''
