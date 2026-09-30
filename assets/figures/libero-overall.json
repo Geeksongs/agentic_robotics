@@ -8,7 +8,7 @@
   },
   "rows": [
     {
-      "method": "RoboGenesis",
+      "method": "EmbodiedRSI",
       "success_rate": 86.8
     },
     {
