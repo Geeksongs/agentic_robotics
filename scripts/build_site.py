@@ -26,12 +26,37 @@ abstract_tex = re.search(r'\\begin\{abstract\}(.*?)\\end\{abstract\}', tex, re.S
 abstract_tex = re.sub(r'(?m)^%.*\n?', '', abstract_tex)
 abstract = re.sub(r'\s+', ' ', abstract_tex).strip()
 abstract = plain(abstract)
-for name, dest in [('Main_figure.pdf','overview'), ('Figure 3.pdf','hypothesis-graph'), ('ablation_code_skill.pdf','code-skill'), ('ablation_voi_spat_t.pdf','learning-curves'), ('real_robot_tasks.pdf','real-robot'), ('sticker_robot_learning.pdf','evolution-loop')]:
+for name, dest in [('Main_figure.pdf','overview'), ('Figure 3.pdf','hypothesis-graph'), ('sticker_robot_learning.pdf','evolution-loop')]:
     with fitz.open(source / 'Figure' / name) as doc:
         doc[0].get_pixmap(matrix=fitz.Matrix(2,2), alpha=False).save(figures / f'{dest}.png')
 for image in (source / 'Figure').glob('*.png'):
     shutil.copy2(image, figures / image.name)
 shutil.copy2(source / 'iclr2027_conference.pdf', root / 'assets/paper/embodied-evo.pdf')
+
+# Preserve each original photograph as its own browser image.
+photo_dir = figures / 'real_robot'
+photo_dir.mkdir(exist_ok=True)
+for photo in (source / 'Figure' / 'real_robot').glob('*.jpg'):
+    shutil.copy2(photo, photo_dir / photo.name)
+real_tasks = [
+    ('oreo', 'Oreo to Red Bowl', 'Pick up the Oreo and place it in the red bowl.'),
+    ('chip', 'Poker Chip Selection', 'Select the chip whose value × 5 = 100.'),
+    ('cake', 'Cake Stacking', 'Stack two cakes on a can of luncheon meat.'),
+    ('glasses', 'Glasses Bridge Grasp', 'Lift the glasses at the bridge.'),
+    ('towel', 'Towel Folding', 'Fold the towel.')]
+real_gallery = []
+for stem, title, instruction in real_tasks:
+    photos = sorted(photo_dir.glob(f'{stem}_*.jpg'))
+    if not photos:
+        continue
+    images = []
+    for i, photo in enumerate(photos):
+        stage = ['Initial scene', 'Robot approach', 'Target state'][i] if len(photos) == 3 else f'Frame {i + 1}'
+        url = f'assets/figures/real_robot/{photo.name}'
+        images.append(f'<figure><a href="{url}"><img loading="lazy" src="{url}" alt="{title}: {stage}" width="1920" height="1080"></a><figcaption>{stage}</figcaption></figure>')
+    real_gallery.append(f'<article class="real-task"><h3>{title}</h3><p>{instruction}</p><div class="real-photos">{"".join(images)}</div></article>')
+real_gallery = '<div class="real-gallery">' + ''.join(real_gallery) + '</div>'
+
 
 def table(label, caption):
     start = tex.index('\\label{' + label + '}')
@@ -72,11 +97,13 @@ page = f'''<!doctype html>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<nav aria-label="Main navigation"><a class="brand" href="#top">EmbodiedEvo</a><div><a href="#abstract">Abstract</a><a href="#method">Method</a><a href="#results">Results</a><a href="#real-world">Real-world</a><a href="#ablations">Ablations</a></div></nav>
+<nav aria-label="Main navigation"><a class="brand" href="#top">EmbodiedEvo</a><div><a href="#abstract">Abstract</a><a href="#method">Method</a><a href="#results">Results</a><a href="#real-world">Real-world</a></div></nav>
 <main id="top">
 <header class="hero">
 <p class="eyebrow">CONTINUAL ROBOT LEARNING</p>
 <h1><span>EmbodiedEvo</span><br>Continual Robot Learning<br>through Hypothesis-Guided Co-Evolution</h1>
+<div class="authors" aria-label="Authors"><span>Python Song<sup>1</sup></span>, <span>Zhixuan Liang<sup>2</sup></span>, <span>Kelsey Fu<sup>2</sup></span>, <span>Mengdi Wang<sup>2</sup></span>, <span>Junfeng Yang<sup>1</sup></span>, <span>Shilong Liu<sup>2</sup></span></div>
+<div class="affiliations"><span><sup>1</sup> Columbia University</span><span><sup>2</sup> Princeton University</span></div>
 <p class="subtitle">Physical evidence guides the next experiment, the next code and skill update, and the knowledge carried into future tasks.</p>
 <div class="links"><a class="button primary" href="assets/paper/embodied-evo.pdf">Read the paper ↗</a><a class="button" href="https://github.com/Geeksongs/agentic_robotics">Website source ↗</a></div>
 <div class="metrics"><div><strong>77.0<span>%</span></strong><p>RoboCasa365 overall</p></div><div><strong>86.8<span>%</span></strong><p>LIBERO-Pro overall</p></div><div><strong>71.3<span>%</span></strong><p>Zero-shot real-robot transfer</p></div></div>
@@ -93,15 +120,9 @@ page = f'''<!doctype html>
 <p class="note">Simulation evaluation: 10 random seeds and 10 trials per seed for each task. Evolution and evaluation use mutually disjoint seeds.</p>
 </section>
 <section id="real-world"><p class="eyebrow">ZERO-SHOT SIM-TO-REAL TRANSFER</p><h2>From simulated experience to a physical robot</h2><p>The simulation-evolved agentic harness transfers to a physical SO-101 arm with a frozen SmolVLA backbone. Overall success rises from 46.0% to 71.3% across five tasks spanning multi-step manipulation, semantic and arithmetic reasoning, and precision grasping.</p>
-{figure('real-robot','Real robot task examples showing Oreo placement, poker-chip selection, and cake stacking','Representative real-world tasks: initial and target states. The poker-chip instruction selects the chip marked 20 because 20 × 5 = 100.')}
+{real_gallery}
 {table('tab:real-robot-results','Real-robot success rates: 30 trials per task')}
 <p class="note">SmolVLA is fine-tuned before evaluation using 50 teleoperated demonstrations per task, then remains frozen during all trials. The agentic harness transfers zero-shot from simulation. Success on glasses bridge grasp falls from 60.0% to 56.7%.</p>
-</section>
-<section id="ablations"><p class="eyebrow">WHAT DRIVES THE GAINS?</p><h2>Co-evolution, exploration, and memory</h2>
-{figure('code-skill','RoboCasa365 success rates for code-only, skill-only, and joint evolution','Code-Skill Co-Evolution reaches 71.3% on Composite-Unseen, compared with 55.6% for Skill-only Evolution.')}
-{figure('learning-curves','Eight-episode rolling success under value-of-information and random experiment selection','Representative LIBERO-Pro SPAT-T case: Value-of-Information Experiment Selection reaches sustained 100% rolling success at episode 48. Random Selection continues to fluctuate.')}
-{table('tab:learning-efficiency','Learning efficiency after 50 physical episodes')}
-{table('tab:rl-ablation','Reward-Grounded Memory Learning ablation on RoboCasa365')}
 </section>
 </main>
 <footer><p>EmbodiedEvo · Continual Robot Learning through Hypothesis-Guided Co-Evolution</p><p><a href="assets/paper/embodied-evo.pdf">Paper</a> · <a href="https://github.com/Geeksongs/agentic_robotics">Website source</a> · <a href="#top">Back to top ↑</a></p><p class="credit">Website adapted from the <a href="https://github.com/Geeksongs/realtime-robosuite/tree/website">Realtime Robosuite website branch</a>. Content and figures from the EmbodiedEvo manuscript.</p></footer>

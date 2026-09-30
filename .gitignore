@@ -131,3 +131,6 @@ MUJOCO_LOG.TXT
 # private demonstration files
 robosuite/models/assets/demonstrations_private
 .claude/
+
+# Project website photographs
+!assets/figures/real_robot/*.jpg
