@@ -1,11 +1,11 @@
-# EmbodiedEvo
+# RoboGenesis
 
-Project website for **EmbodiedEvo: Continual Robot Learning through Hypothesis-Guided Co-Evolution**.
+Project website for **RoboGenesis: Continual Robot Learning Through Hypothesis-Guided Co-Evolution**.
 
 - Website: https://geeksongs.github.io/agentic_robotics/
 - Paper: [assets/paper/embodied-evo.pdf](assets/paper/embodied-evo.pdf)
 
-The site uses the manuscript's abstract verbatim (converting LaTeX formatting to HTML), figures, and result tables. The source branch was cloned exclusively from [`realtime-robosuite`'s `website` branch](https://github.com/Geeksongs/realtime-robosuite/tree/website).
+The project is branded RoboGenesis. The current manuscript and its abstract retain the original method name, EmbodiedEvo. The site uses the manuscript's abstract verbatim (converting LaTeX formatting to HTML), figures, and result tables. The source branch was cloned exclusively from [`realtime-robosuite`'s `website` branch](https://github.com/Geeksongs/realtime-robosuite/tree/website).
 
 ## Preview
 

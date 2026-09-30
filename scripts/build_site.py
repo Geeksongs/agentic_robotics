@@ -86,7 +86,7 @@ def table(label, caption):
             continue
         line = re.sub(r'\\rule\[[^\]]*\]\{[^}]*\}\{[^}]*\}', '', line)
         line = line.replace(r'\highlightrowstrut', '')
-        cells = [plain(c) for c in line.split(r'\\')[0].split('&')]
+        cells = [plain(c).replace('EmbodiedEvo', 'RoboGenesis') for c in line.split(r'\\')[0].split('&')]
         tag = 'th' if not rows else 'td'
         highlight = ' class="ours"' if 'EmbodiedEvo' in line or ('Overall' in line and rows) else ''
         cells_html = ''.join(f'<{tag}{" scope=\"col\"" if tag == "th" else ""}>{c}</{tag}>' for c in cells)
@@ -109,30 +109,30 @@ page = f'''<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="EmbodiedEvo: a self-evolving agentic harness for continual robot learning through hypothesis-guided code and skill co-evolution.">
+<meta name="description" content="RoboGenesis: a self-evolving agentic harness for continual robot learning through hypothesis-guided code and skill co-evolution.">
 <meta name="theme-color" content="#243d83">
-<title>EmbodiedEvo | Continual Robot Learning</title>
+<title>RoboGenesis | Continual Robot Learning</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<nav aria-label="Main navigation"><a class="brand" href="#top">EmbodiedEvo</a><div><a href="#abstract">Abstract</a><a href="#method">Method</a><a href="#results">Results</a><a href="#real-world">Real-world</a></div></nav>
+<nav aria-label="Main navigation"><a class="brand" href="#top">RoboGenesis</a><div><a href="#abstract">Abstract</a><a href="#method">Method</a><a href="#results">Results</a><a href="#real-world">Real-world</a></div></nav>
 <main id="top">
 <header class="hero">
 <p class="eyebrow">CONTINUAL ROBOT LEARNING</p>
-<h1><span>EmbodiedEvo</span><br>Continual Robot Learning<br>Through Hypothesis-Guided Co-Evolution</h1>
+<h1><span>RoboGenesis</span><br>Continual Robot Learning<br>Through Hypothesis-Guided Co-Evolution</h1>
 <div class="authors" aria-label="Authors"><span>Python Song<sup>1</sup></span>, <span>Zhixuan Liang<sup>2</sup></span>, <span>Kelsey Fu<sup>2</sup></span>, <span>Mengdi Wang<sup>2</sup></span>, <span>Junfeng Yang<sup>1</sup></span>, <span>Shilong Liu<sup>2</sup></span></div>
 <div class="affiliations"><span><sup>1</sup> Columbia University</span><span><sup>2</sup> Princeton University</span></div>
 <p class="subtitle">Building the recursive self-improvement layer for robotics: an agentic harness that evolves its own code, skills, and memory through physical experience.</p>
 <div class="links"><a class="button primary" href="assets/paper/embodied-evo.pdf">Read the paper ↗</a><a class="button" href="https://github.com/Geeksongs/agentic_robotics">Website source ↗</a></div>
 <div class="metrics"><div><strong>77.0<span>%</span></strong><p>RoboCasa365 overall</p></div><div><strong>86.8<span>%</span></strong><p>LIBERO-Pro overall</p></div><div><strong>71.3<span>%</span></strong><p>Zero-shot real-robot transfer</p></div></div>
 </header>
-<section id="overview" class="overview">{figure('overview','EmbodiedEvo architecture showing the Fast System, Hypothesis Graph, and Slow System memory','The Fast System uses a Hypothesis Graph to choose each physical experiment. Each result guides a joint code-skill update. The Slow System retains memories that improve later adaptation.')}</section>
+<section id="overview" class="overview">{figure('overview','RoboGenesis architecture showing the Fast System, Hypothesis Graph, and Slow System memory','The Fast System uses a Hypothesis Graph to choose each physical experiment. Each result guides a joint code-skill update. The Slow System retains memories that improve later adaptation.')}</section>
 <section id="abstract"><p class="eyebrow">THE PAPER</p><h2>Abstract</h2><p class="abstract">{abstract}</p></section>
 <section id="method"><p class="eyebrow">FROM INTERACTION TO IMPROVEMENT</p><h2>Hypothesis-Guided Co-Evolution</h2>
 <div class="cards"><article><span class="number">01</span><h3>Choose Informative Experiments</h3><p>The Fast System maintains competing code and skill hypotheses. Value-of-Information Experiment Selection prioritizes physical trials by expected uncertainty reduction relative to their cost.</p></article><article><span class="number">02</span><h3>Evolve Code and Skills Together</h3><p>Matched trials compare joint code-skill execution with each component from the same initial states. The Hypothesis Graph retains refinement history and relations supported by positive joint gain.</p></article><article><span class="number">03</span><h3>Learn What to Remember</h3><p>The Slow System builds Hierarchical Memory from execution records, hypotheses, and reusable cognition. Reward-Grounded Memory Learning selects memory actions based on later Fast-System improvement.</p></article></div>
 {figure('hypothesis-graph','Hypothesis Graph before and after physical trials','Before experiments, dashed links mark code-skill relations awaiting evidence. After experiments, solid works-with edges identify relations supported by measured positive joint gain.')}
 </section>
-<section id="results"><p class="eyebrow">GENERALIZATION IN SIMULATION</p><h2>New Compositions. Changed Scenes.</h2><p>With the robot foundation model frozen, EmbodiedEvo reaches 71.3% success on RoboCasa365 Composite-Unseen, compared with 40.1% for Harness VLA. LIBERO-Pro evaluates instruction-redirection (T) and position-swap (S) perturbations.</p><div class="task-grid">{task_grid}</div>
+<section id="results"><p class="eyebrow">GENERALIZATION IN SIMULATION</p><h2>New Compositions. Changed Scenes.</h2><p>With the robot foundation model frozen, RoboGenesis reaches 71.3% success on RoboCasa365 Composite-Unseen, compared with 40.1% for Harness VLA. LIBERO-Pro evaluates instruction-redirection (T) and position-swap (S) perturbations.</p><div class="task-grid">{task_grid}</div>
 {table('tab:main-results','RoboCasa365 Success Rates (%)')}
 {table('tab:libero-results','LIBERO-Pro Success Rates (%); — / -- denotes a cell not applicable to the method')}
 <p class="note">Simulation evaluation: 10 random seeds and 10 trials per seed for each task. Evolution and evaluation use mutually disjoint seeds.</p>
@@ -143,7 +143,7 @@ page = f'''<!doctype html>
 <p class="note">SmolVLA is fine-tuned before evaluation using 50 teleoperated demonstrations per task, then remains frozen during all trials. The agentic harness transfers zero-shot from simulation. Success on glasses bridge grasp falls from 60.0% to 56.7%.</p>
 </section>
 </main>
-<footer><p>EmbodiedEvo · Continual Robot Learning through Hypothesis-Guided Co-Evolution</p><p><a href="assets/paper/embodied-evo.pdf">Paper</a> · <a href="https://github.com/Geeksongs/agentic_robotics">Website source</a> · <a href="#top">Back to top ↑</a></p><p class="credit">Website adapted from the <a href="https://github.com/Geeksongs/realtime-robosuite/tree/website">Realtime Robosuite website branch</a>. Content and figures from the EmbodiedEvo manuscript.</p></footer>
+<footer><p>RoboGenesis · Continual Robot Learning through Hypothesis-Guided Co-Evolution</p><p><a href="assets/paper/embodied-evo.pdf">Paper</a> · <a href="https://github.com/Geeksongs/agentic_robotics">Website source</a> · <a href="#top">Back to top ↑</a></p><p class="credit">Website adapted from the <a href="https://github.com/Geeksongs/realtime-robosuite/tree/website">Realtime Robosuite website branch</a>. Content and figures from the EmbodiedEvo manuscript.</p></footer>
 </body></html>
 '''
 (root / 'index.html').write_text(page)
