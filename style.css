@@ -218,3 +218,9 @@ footer p { margin: 6px 0; }
   html { scroll-behavior: auto; }
   .button { transition: none; }
 }
+
+/* Lift the exposure of real-robot photos while preserving the source JPEGs. */
+.hero-photo img,
+.real-photos img {
+  filter: brightness(1.4) contrast(1.03);
+}
