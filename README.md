@@ -22,7 +22,7 @@ python3 -m pip install pymupdf
 python3 scripts/build_site.py /path/to/manuscript-directory [real-robot-photos.zip]
 ```
 
-The source directory should contain `iclr2027_conference.tex`, its compiled PDF, and `Figure/`. Regeneration converts existing figures to browser-compatible PNGs and extracts the abstract and tables without editing the manuscript. An optional ZIP imports the five real-robot task photo sequences; the website displays each original JPEG separately, in timestamp order. Existing imported photographs are preserved on subsequent builds. The author list uses two affiliations: Columbia University and Princeton University. Ablation studies are omitted from the website.
+The source directory should contain `iclr2027_conference.tex`, its compiled PDF, and `Figure/`. Regeneration converts existing figures to browser-compatible PNGs and extracts the abstract and tables without editing the manuscript. An optional ZIP imports the five real-robot task photo sequences; the website displays each original JPEG separately, in timestamp order. Existing imported photographs are preserved on subsequent builds. The author list uses two affiliations: Columbia University and Princeton University. Ablation studies are omitted from the website. Simulation comparisons use bar charts for RoboCasa365 Composite-Unseen and LIBERO-Pro Overall, extracted directly from the manuscript tables with downloadable JSON data.
 
 ## Deploy
 

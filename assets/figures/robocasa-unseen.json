@@ -1,0 +1,39 @@
+{
+  "benchmark": "RoboCasa365",
+  "metric": "Composite-Unseen",
+  "unit": "percent",
+  "source": {
+    "file": "iclr2027_conference.tex",
+    "table_label": "tab:main-results"
+  },
+  "rows": [
+    {
+      "method": "RoboGenesis",
+      "success_rate": 71.3
+    },
+    {
+      "method": "Harness VLA",
+      "success_rate": 40.1
+    },
+    {
+      "method": "Xiaomi-Robotics-1",
+      "success_rate": 32.1
+    },
+    {
+      "method": "WorldDreamer",
+      "success_rate": 9.0
+    },
+    {
+      "method": "RLDX-1",
+      "success_rate": 5.0
+    },
+    {
+      "method": "π₀.₅",
+      "success_rate": 1.2
+    },
+    {
+      "method": "π₀",
+      "success_rate": 1.1
+    }
+  ]
+}

@@ -76,7 +76,7 @@ for stem, title, instruction in real_tasks:
 real_gallery = '<div class="real-gallery">' + ''.join(real_gallery) + '</div>'
 
 
-def table(label, caption):
+def table_rows(label):
     start = tex.index('\\label{' + label + '}')
     body = tex[start:tex.index('\\end{tabular}', start)]
     body = body[body.index('\\toprule') + len('\\toprule'):]
@@ -87,11 +87,40 @@ def table(label, caption):
         line = re.sub(r'\\rule\[[^\]]*\]\{[^}]*\}\{[^}]*\}', '', line)
         line = line.replace(r'\highlightrowstrut', '')
         cells = [plain(c).replace('EmbodiedEvo', 'RoboGenesis') for c in line.split(r'\\')[0].split('&')]
+        rows.append(cells)
+    return rows
+
+
+def table(label, caption):
+    rows = []
+    for cells in table_rows(label):
         tag = 'th' if not rows else 'td'
-        highlight = ' class="ours"' if 'EmbodiedEvo' in line or ('Overall' in line and rows) else ''
-        cells_html = ''.join(f'<{tag}{" scope=\"col\"" if tag == "th" else ""}>{c}</{tag}>' for c in cells)
+        highlight = ' class="ours"' if any('RoboGenesis' in c for c in cells) or ('Overall' in cells and rows) else ''
+        cells_html = ''.join(f'<{tag}>{c}</{tag}>' for c in cells)
         rows.append(f'<tr{highlight}>{cells_html}</tr>')
     return f'<div class="table-wrap" tabindex="0" role="region" aria-label="{caption}"><table><caption>{caption}</caption><thead>{rows[0]}</thead><tbody>{"".join(rows[1:])}</tbody></table></div>'
+
+
+def benchmark_chart(label, metric, title, identifier):
+    source_rows = table_rows(label)
+    column = source_rows[0].index(metric)
+    data = [{'method': html.unescape(row[0]).replace(' (Ours)', ''),
+             'success_rate': float(row[column])} for row in source_rows[1:]]
+    assert all(0 <= row['success_rate'] <= 100 for row in data)
+    data.sort(key=lambda row: row['success_rate'], reverse=True)
+    ours = next(row['success_rate'] for row in data if row['method'] == 'RoboGenesis')
+    best_baseline = max(row['success_rate'] for row in data if row['method'] != 'RoboGenesis')
+    bars = []
+    for row in data:
+        method, value = html.escape(row['method']), row['success_rate']
+        focal = ' focal' if row['method'] == 'RoboGenesis' else ''
+        bars.append(f'<li class="bar-row{focal}" data-method="{method}" data-value="{value:.1f}"><span class="bar-label">{method}</span><span class="bar-track" aria-hidden="true"><span class="bar-fill" style="width:{value:.1f}%"></span></span><span class="bar-value">{value:.1f}%</span></li>')
+    chart_data = {'benchmark': title, 'metric': metric, 'unit': 'percent',
+                  'source': {'file': 'iclr2027_conference.tex', 'table_label': label}, 'rows': data}
+    (figures / f'{identifier}.json').write_text(json.dumps(chart_data, ensure_ascii=False, indent=2) + '\n')
+    scope = 'Composite-Unseen' if metric == 'Composite-Unseen' else 'Overall'
+    return f'<figure class="benchmark-chart" id="{identifier}" aria-labelledby="{identifier}-title"><div class="chart-heading"><div><h3 id="{identifier}-title">{title}</h3><p>{scope} · Success Rate (%)</p></div><div class="chart-highlight"><strong>{ours:.1f}<span>%</span></strong><span class="chart-delta">+{ours - best_baseline:.1f} pp vs. best baseline</span></div></div><ol class="bar-chart">{"".join(bars)}</ol><div class="chart-axis" aria-hidden="true"><span>0</span><span>25</span><span>50</span><span>75</span><span>100%</span></div><figcaption><a href="assets/paper/embodied-evo.pdf">Manuscript results</a> · <a href="assets/figures/{identifier}.json">Chart data</a></figcaption></figure>'
+
 
 def figure(name, alt, caption):
     return f'<figure><a href="assets/figures/{name}.png"><img src="assets/figures/{name}.png" alt="{alt}" loading="lazy" width="1200"></a><figcaption>{caption}</figcaption></figure>'
@@ -133,8 +162,8 @@ page = f'''<!doctype html>
 {figure('hypothesis-graph','Hypothesis Graph before and after physical trials','Before experiments, dashed links mark code-skill relations awaiting evidence. After experiments, solid works-with edges identify relations supported by measured positive joint gain.')}
 </section>
 <section id="results"><p class="eyebrow">GENERALIZATION IN SIMULATION</p><h2>New Compositions. Changed Scenes.</h2><p>With the robot foundation model frozen, RoboGenesis reaches 71.3% success on RoboCasa365 Composite-Unseen, compared with 40.1% for Harness VLA. LIBERO-Pro evaluates instruction-redirection (T) and position-swap (S) perturbations.</p><div class="task-grid">{task_grid}</div>
-{table('tab:main-results','RoboCasa365 Success Rates (%)')}
-{table('tab:libero-results','LIBERO-Pro Success Rates (%); — / -- denotes a cell not applicable to the method')}
+{benchmark_chart('tab:main-results','Composite-Unseen','RoboCasa365','robocasa-unseen')}
+{benchmark_chart('tab:libero-results','Overall','LIBERO-Pro','libero-overall')}
 <p class="note">Simulation evaluation: 10 random seeds and 10 trials per seed for each task. Evolution and evaluation use mutually disjoint seeds.</p>
 </section>
 <section id="real-world"><p class="eyebrow">ZERO-SHOT SIM-TO-REAL TRANSFER</p><h2>From Simulated Experience to a Physical Robot</h2><p>The simulation-evolved agentic harness transfers to a physical SO-101 arm with a frozen SmolVLA backbone. Overall success rises from 46.0% to 71.3% across five tasks spanning multi-step manipulation, semantic and arithmetic reasoning, and precision grasping.</p>
