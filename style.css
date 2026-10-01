@@ -35,6 +35,7 @@ h1 { line-height: 1.25; margin: 0; font-weight: 650; letter-spacing: -.035em; }
 .authors sup { color: var(--blue); font-size: 9px; margin-left: 2px; }
 .affiliations { display: flex; flex-wrap: wrap; gap: 8px 24px; color: var(--muted); font-size: 12px; }
 .affiliations sup { font-size: 9px; }
+.corresponding-authors { margin: 8px 0 0; color: var(--muted); font-size: 12px; }
 .university-logos { display: flex; align-items: center; gap: 30px; margin: 24px 0 30px; }
 .university-logos a { display: block; width: 190px; max-width: 43%; }
 .university-logos img { display: block; width: 100%; height: 44px; object-fit: contain; object-position: left center; }

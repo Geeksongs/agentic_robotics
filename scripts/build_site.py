@@ -24,13 +24,14 @@ if anonymous:
     shutil.rmtree(root / 'assets/logos', ignore_errors=True)
 else:
     identity = json.loads((private / 'identity.json').read_text())
-    authors = ', '.join(f'<span>{html.escape(author["name"])}<sup>{",".join(map(str, author["affiliations"]))}</sup></span>' for author in identity['authors'])
+    authors = ', '.join(f'<span>{html.escape(author["name"])}<sup>{",".join(map(str, author["affiliations"]))}{",†" if author.get("corresponding") else ""}</sup></span>' for author in identity['authors'])
+    corresponding_note = '<p class="corresponding-authors">† Corresponding Authors</p>' if any(author.get("corresponding") for author in identity["authors"]) else ""
     units = ''.join(f'<span><sup>{unit["number"]}</sup> {html.escape(unit["name"])}</span>' for unit in identity['affiliations'])
     logos = ''.join(f'<a href="{html.escape(unit["url"])}" aria-label="{html.escape(unit["name"])}"><img src="assets/logos/{html.escape(unit["logo"])}" alt="{html.escape(unit["name"])}" width="230" height="64"></a>' for unit in identity['affiliations'])
     (root / 'assets/logos').mkdir(parents=True, exist_ok=True)
     for unit in identity['affiliations']:
         shutil.copy2(private / 'logos' / unit['logo'], root / 'assets/logos' / unit['logo'])
-    hero_identity = f'<div class="authors" aria-label="Authors">{authors}</div><div class="affiliations">{units}</div><div class="university-logos">{logos}</div>'
+    hero_identity = f'<div class="authors" aria-label="Authors">{authors}</div><div class="affiliations">{units}</div>{corresponding_note}<div class="university-logos">{logos}</div>'
 
 figures = root / 'assets/figures'
 figures.mkdir(parents=True, exist_ok=True)
