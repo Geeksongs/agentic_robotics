@@ -27,7 +27,9 @@ else:
     authors = ', '.join(f'<span>{html.escape(author["name"])}<sup>{",".join(map(str, author["affiliations"]))}</sup></span>' for author in identity['authors'])
     units = ''.join(f'<span><sup>{unit["number"]}</sup> {html.escape(unit["name"])}</span>' for unit in identity['affiliations'])
     logos = ''.join(f'<a href="{html.escape(unit["url"])}" aria-label="{html.escape(unit["name"])}"><img src="assets/logos/{html.escape(unit["logo"])}" alt="{html.escape(unit["name"])}" width="230" height="64"></a>' for unit in identity['affiliations'])
-    shutil.copytree(private / 'logos', root / 'assets/logos', dirs_exist_ok=True)
+    (root / 'assets/logos').mkdir(parents=True, exist_ok=True)
+    for unit in identity['affiliations']:
+        shutil.copy2(private / 'logos' / unit['logo'], root / 'assets/logos' / unit['logo'])
     hero_identity = f'<div class="authors" aria-label="Authors">{authors}</div><div class="affiliations">{units}</div><div class="university-logos">{logos}</div>'
 
 figures = root / 'assets/figures'

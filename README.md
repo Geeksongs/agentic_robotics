@@ -4,7 +4,7 @@ Project website for **EmbodiedRSI: Continual Robot Learning Through Hypothesis-G
 
 ## Anonymous mode
 
-`site-config.json` enables anonymous publication by default. The generated page displays **Anonymous Authors** and omits author names, affiliations, and university logos. The submission PDF is excluded from publication.
+`site-config.json` currently keeps normal author and affiliation display enabled (`anonymous: false`). Anonymous presentation is available as an optional setting; when explicitly enabled, it displays **Anonymous Authors** and omits identities and university logos. The submission PDF is excluded from publication.
 
 Private identity settings and logo backups live in the local, Git-ignored `.site-private/` directory. To restore named authors locally, set `anonymous` to `false` in `site-config.json` and regenerate the website. Named builds require these private settings.
 
