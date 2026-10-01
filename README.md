@@ -2,9 +2,13 @@
 
 Project website for **EmbodiedRSI: Continual Robot Learning Through Hypothesis-Guided Co-Evolution**.
 
-- Website: https://geeksongs.github.io/agentic_robotics/
+## Anonymous mode
 
-The project is branded EmbodiedRSI. The current manuscript and its abstract retain the original method name, EmbodiedEvo. The site uses the manuscript's abstract verbatim (converting LaTeX formatting to HTML), figures, and result tables. The source branch was cloned exclusively from [`realtime-robosuite`'s `website` branch](https://github.com/Geeksongs/realtime-robosuite/tree/website).
+`site-config.json` enables anonymous publication by default. The generated page displays **Anonymous Authors** and omits author names, affiliations, and university logos. The submission PDF is excluded from publication.
+
+Private identity settings and logo backups live in the local, Git-ignored `.site-private/` directory. To restore named authors locally, set `anonymous` to `false` in `site-config.json` and regenerate the website. Named builds require these private settings.
+
+Website anonymity does not remove identity from a hosting account, repository ownership, or existing Git history.
 
 ## Preview
 
@@ -12,17 +16,19 @@ The project is branded EmbodiedRSI. The current manuscript and its abstract reta
 python3 -m http.server 8000
 ```
 
-Open http://localhost:8000. The website is static HTML/CSS/JavaScript with no external runtime dependencies. The visual design uses a split hero, local university logos, a dark benchmark section with keyboard-accessible tabs, and expandable real-robot photo sequences. Logo source URLs are recorded in `assets/logos/sources.json`.
+Open http://localhost:8000. The site uses local HTML, CSS, and JavaScript. Benchmark tabs support keyboard navigation, and real-robot photo sequences expand independently.
 
-## Regenerate from the manuscript
+## Regenerate
 
 ```sh
 python3 -m pip install pymupdf
 python3 scripts/build_site.py /path/to/manuscript-directory [real-robot-photos.zip]
 ```
 
-The source directory should contain `iclr2027_conference.tex`, `Figure/`. The submission PDF is not included in the published website. Regeneration converts existing figures to browser-compatible PNGs and extracts the abstract and tables without editing the manuscript. An optional ZIP imports the five real-robot task photo sequences; the website displays each original JPEG separately, in timestamp order. Existing imported photographs are preserved on subsequent builds. The author list uses two affiliations: Columbia University and Princeton University. Shilong Liu is affiliated with both institutions. Ablation studies are omitted from the website. Simulation comparisons use bar charts for RoboCasa365 Composite-Unseen and LIBERO-Pro Overall, extracted directly from the manuscript tables with downloadable JSON data.
+The source directory contains `iclr2027_conference.tex` and `Figure/`. Regeneration extracts the abstract and results without editing the manuscript. Optional ZIP import preserves the five real-robot task sequences as individual original JPEGs. Existing imported photographs are retained.
+
+Simulation comparisons display RoboCasa365 Composite-Unseen and LIBERO-Pro Overall. Chart values come from the manuscript tables. Source mappings and chart exports remain local in `.site-private/` and are not published. Ablation studies are omitted.
 
 ## Deploy
 
-Push to `website`. The GitHub Actions workflow publishes only `index.html`, `style.css`, `site.js`, and `assets/` to GitHub Pages.
+Push to `website`. GitHub Actions publishes `index.html`, `style.css`, `site.js`, and `assets/` to GitHub Pages. Only image assets are copied into the deployment. Private identity settings, JSON data exports, and the manuscript PDF are excluded.

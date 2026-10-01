@@ -224,3 +224,10 @@ footer p { margin: 6px 0; }
 .real-photos img {
   filter: brightness(1.4) contrast(1.03);
 }
+
+.anonymous-authors {
+  margin: 28px 0 24px;
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: .02em;
+}

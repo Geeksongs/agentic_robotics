@@ -14,6 +14,22 @@ import pymupdf as fitz
 root = Path(__file__).resolve().parents[1]
 source = Path(sys.argv[1]).resolve()
 tex = (source / 'iclr2027_conference.tex').read_text()
+
+config = json.loads((root / 'site-config.json').read_text())
+anonymous = config.get('anonymous', True)
+private = root / '.site-private'
+private.mkdir(exist_ok=True)
+if anonymous:
+    hero_identity = '<p class="anonymous-authors">Anonymous Authors</p>'
+    shutil.rmtree(root / 'assets/logos', ignore_errors=True)
+else:
+    identity = json.loads((private / 'identity.json').read_text())
+    authors = ', '.join(f'<span>{html.escape(author["name"])}<sup>{",".join(map(str, author["affiliations"]))}</sup></span>' for author in identity['authors'])
+    units = ''.join(f'<span><sup>{unit["number"]}</sup> {html.escape(unit["name"])}</span>' for unit in identity['affiliations'])
+    logos = ''.join(f'<a href="{html.escape(unit["url"])}" aria-label="{html.escape(unit["name"])}"><img src="assets/logos/{html.escape(unit["logo"])}" alt="{html.escape(unit["name"])}" width="230" height="64"></a>' for unit in identity['affiliations'])
+    shutil.copytree(private / 'logos', root / 'assets/logos', dirs_exist_ok=True)
+    hero_identity = f'<div class="authors" aria-label="Authors">{authors}</div><div class="affiliations">{units}</div><div class="university-logos">{logos}</div>'
+
 figures = root / 'assets/figures'
 figures.mkdir(parents=True, exist_ok=True)
 
@@ -52,7 +68,7 @@ if len(sys.argv) > 2:
                 filename = f'{stem}_{i:02}.jpg'
                 (photo_dir / filename).write_bytes(archive.read(name))
                 provenance[filename] = name
-    (photo_dir / 'sources.json').write_text(json.dumps(provenance, ensure_ascii=False, indent=2) + '\n')
+    (private / 'photo-sources.json').write_text(json.dumps(provenance, ensure_ascii=False, indent=2) + '\n')
 
 real_tasks = [
     ('oreo', 'Oreo to Red Bowl', 'Pick up the Oreo and place it in the red bowl.'),
@@ -69,7 +85,7 @@ for stem, title, instruction in real_tasks:
     for i, photo in enumerate(photos):
         stage = ['Initial Scene', 'Execution', 'Final Scene'][i] if len(photos) == 3 else f'Frame {i + 1}'
         url = f'assets/figures/real_robot/{photo.name}'
-        images.append(f'<figure><a href="{url}"><img loading="lazy" src="{url}" alt="{title}: {stage}" width="1920" height="1080"></a><figcaption>{stage}</figcaption></figure>')
+        images.append(f'<figure><img loading="lazy" src="{url}" alt="{title}: {stage}" width="1920" height="1080"><figcaption>{stage}</figcaption></figure>')
     real_gallery.append(f'<details class="real-task"{" open" if not real_gallery else ""}><summary><span class="task-index">{len(real_gallery) + 1:02}</span><span><h3>{title}</h3><p>{instruction}</p></span><span class="expand-icon" aria-hidden="true">+</span></summary><div class="real-photos">{"".join(images)}</div></details>')
 real_gallery = '<div class="real-gallery">' + ''.join(real_gallery) + '</div>'
 
@@ -115,13 +131,13 @@ def benchmark_chart(label, metric, title, identifier):
         bars.append(f'<li class="bar-row{focal}" data-method="{method}" data-value="{value:.1f}"><span class="bar-label">{method}</span><span class="bar-track" aria-hidden="true"><span class="bar-fill" style="width:{value:.1f}%"></span></span><span class="bar-value">{value:.1f}%</span></li>')
     chart_data = {'benchmark': title, 'metric': metric, 'unit': 'percent',
                   'source': {'file': 'iclr2027_conference.tex', 'table_label': label}, 'rows': data}
-    (figures / f'{identifier}.json').write_text(json.dumps(chart_data, ensure_ascii=False, indent=2) + '\n')
+    (private / f'{identifier}.json').write_text(json.dumps(chart_data, ensure_ascii=False, indent=2) + '\n')
     scope = 'Composite-Unseen' if metric == 'Composite-Unseen' else 'Overall'
-    return f'<figure class="benchmark-chart" id="{identifier}" aria-labelledby="{identifier}-title"><div class="chart-heading"><div><h3 id="{identifier}-title">{title}</h3><p>{scope} · Success Rate (%)</p></div><div class="chart-highlight"><strong>{ours:.1f}<span>%</span></strong><span class="chart-delta">+{ours - best_baseline:.1f} pp vs. best baseline</span></div></div><ol class="bar-chart">{"".join(bars)}</ol><div class="chart-axis" aria-hidden="true"><span>0</span><span>25</span><span>50</span><span>75</span><span>100%</span></div><figcaption>Manuscript results · <a href="assets/figures/{identifier}.json">Chart data</a></figcaption></figure>'
+    return f'<figure class="benchmark-chart" id="{identifier}" aria-labelledby="{identifier}-title"><div class="chart-heading"><div><h3 id="{identifier}-title">{title}</h3><p>{scope} · Success Rate (%)</p></div><div class="chart-highlight"><strong>{ours:.1f}<span>%</span></strong><span class="chart-delta">+{ours - best_baseline:.1f} pp vs. best baseline</span></div></div><ol class="bar-chart">{"".join(bars)}</ol><div class="chart-axis" aria-hidden="true"><span>0</span><span>25</span><span>50</span><span>75</span><span>100%</span></div></figure>'
 
 
 def figure(name, alt, caption):
-    return f'<figure><a href="assets/figures/{name}.png"><img src="assets/figures/{name}.png" alt="{alt}" loading="lazy" width="1200"></a><figcaption>{caption}</figcaption></figure>'
+    return f'<figure><img src="assets/figures/{name}.png" alt="{alt}" loading="lazy" width="1200"><figcaption>{caption}</figcaption></figure>'
 
 tasks = [
  ('atomic_seen__PickPlaceCounterToCabinet__robot0_agentview_left.png','Counter to Cabinet','Atomic-Seen'),
@@ -148,9 +164,7 @@ page = f'''<!doctype html>
 <div class="hero-copy">
 <p class="eyebrow">CONTINUAL ROBOT LEARNING</p>
 <h1><span class="wordmark">Embodied<span class="wordmark-accent">RSI</span></span><span class="paper-title">Continual Robot Learning<br>Through Hypothesis-Guided Co-Evolution</span></h1>
-<div class="authors" aria-label="Authors"><span>Python Song<sup>1</sup></span>, <span>Zhixuan Liang<sup>2</sup></span>, <span>Kelsey Fu<sup>2</sup></span>, <span>Mengdi Wang<sup>2</sup></span>, <span>Junfeng Yang<sup>1</sup></span>, <span>Shilong Liu<sup>2,1</sup></span></div>
-<div class="affiliations"><span><sup>1</sup> Columbia University</span><span><sup>2</sup> Princeton University</span></div>
-<div class="university-logos"><a href="https://www.columbia.edu/" aria-label="Columbia University"><img src="assets/logos/columbia.svg" alt="Columbia University" width="230" height="64"></a><a href="https://www.princeton.edu/" aria-label="Princeton University"><img src="assets/logos/princeton.svg" alt="Princeton University" width="230" height="64"></a></div>
+{hero_identity}
 <p class="subtitle">Building the recursive self-improvement layer for robotics: an agentic harness that evolves its own code, skills, and memory through physical experience.</p>
 </div>
 <div class="hero-media" aria-label="Real robot experiments"><figure class="hero-photo primary-photo"><img src="assets/figures/real_robot/glasses_03.jpg" alt="SO-101 robot lifting glasses at the bridge" width="1920" height="1080"><figcaption>Glasses Bridge Grasp</figcaption></figure><figure class="hero-photo secondary-photo"><img src="assets/figures/real_robot/cake_03.jpg" alt="SO-101 robot stacking cakes on a can of luncheon meat" width="1920" height="1080"><figcaption>Cake Stacking</figcaption></figure><span class="orbit orbit-one" aria-hidden="true"></span><span class="orbit orbit-two" aria-hidden="true"></span></div>
@@ -174,7 +188,7 @@ page = f'''<!doctype html>
 <p class="note">SmolVLA is fine-tuned before evaluation using 50 teleoperated demonstrations per task, then remains frozen during all trials. The agentic harness transfers zero-shot from simulation. Success on glasses bridge grasp falls from 60.0% to 56.7%.</p>
 </section>
 </main>
-<footer><p>EmbodiedRSI · Continual Robot Learning through Hypothesis-Guided Co-Evolution</p><p><a href="#top">Back to top ↑</a></p><p class="credit">Website adapted from the <a href="https://github.com/Geeksongs/realtime-robosuite/tree/website">Realtime Robosuite website branch</a>. Content and figures from the EmbodiedEvo manuscript.</p></footer>
+<footer><p>EmbodiedRSI · Continual Robot Learning through Hypothesis-Guided Co-Evolution</p><p><a href="#top">Back to top ↑</a></p></footer>
 <script src="site.js" defer></script>
 </body></html>
 '''
